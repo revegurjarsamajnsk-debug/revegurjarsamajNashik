@@ -164,7 +164,7 @@
                 <h2>परिचय</h2>
             </div>
             <ul class="sidebar-nav-menu">
-                <li><a href="index.html">Home</a></li>
+                <li><a href="home.html">Home</a></li>
                 <li><a href="ParichayList.html">Parichay List</a></li>
                 <li><a href="contacts.html">संपर्क माहिती</a></li>
             </ul>
