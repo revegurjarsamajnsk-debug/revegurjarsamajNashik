@@ -307,6 +307,13 @@ main {
 }
 
 @media (max-width: 768px) {
+    .banner-text {
+        font-size: 1.5rem; /* Reduces font size on smaller screens */
+        white-space: normal; /* Allows text to wrap */
+    }
+}
+
+@media (max-width: 768px) {
     main {
         padding: 1rem;
         padding-top: 8rem;
