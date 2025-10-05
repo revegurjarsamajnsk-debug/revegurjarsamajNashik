@@ -100,11 +100,9 @@ function setupSearch() {
         });
     });
 }
-// Initialize Supabase client
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 /**
  * Groups profiles by their Area property
  * @param {Array} profiles - Array of profile objects from Supabase
