@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: revegurjarsamajnashik.vercel.app
+Sitemap: https://revegurjarsamajnashik.vercel.app/sitemap.xml
