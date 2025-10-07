@@ -20,12 +20,10 @@ function createAreaMenu(groupedProfiles) {
         menuItem.appendChild(areaName);
         menuItem.appendChild(count);
         
-        // Add click handler to navigate to area
         menuItem.addEventListener('click', () => {
             const areaSection = document.getElementById(`area-${area.replace(/\s+/g, '-')}`);
             if (areaSection) {
                 areaSection.scrollIntoView({ behavior: 'smooth' });
-                // Hide menu after selection
                 document.getElementById('area-menu').classList.remove('show');
             }
         });
@@ -46,7 +44,6 @@ function setupAreaMenuToggle() {
         menu.classList.toggle('show');
     });
     
-    // Close menu when clicking outside
     document.addEventListener('click', (e) => {
         if (!menu.contains(e.target) && !toggle.contains(e.target)) {
             menu.classList.remove('show');
@@ -66,7 +63,6 @@ function setupSearch() {
         const allSections = document.querySelectorAll('.area-section');
         
         if (searchTerm === '') {
-            // If search is empty, show everything
             allSections.forEach(section => {
                 section.style.display = 'flex';
                 section.querySelectorAll('.profile-card').forEach(card => card.style.display = 'flex');
@@ -79,10 +75,8 @@ function setupSearch() {
             const cards = section.querySelectorAll('.profile-card');
             
             cards.forEach(card => {
-                // Extract all text content from the card for a comprehensive search
                 const cardText = card.textContent.toLowerCase();
                 
-                // Check if the card's text includes the search term
                 if (cardText.includes(searchTerm)) {
                     card.style.display = 'flex';
                     sectionHasVisibleCards = true;
@@ -91,7 +85,6 @@ function setupSearch() {
                 }
             });
             
-            // Show the section only if it has cards that match the search
             section.style.display = sectionHasVisibleCards ? 'flex' : 'none';
         });
     });
@@ -102,8 +95,6 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Groups profiles by their Area property
- * @param {Array} profiles - Array of profile objects from Supabase
- * @returns {Object} - Object with areas as keys and profile arrays as values
  */
 function groupProfilesByArea(profiles) {
     return profiles.reduce((groupedData, profile) => {
@@ -117,26 +108,22 @@ function groupProfilesByArea(profiles) {
 }
 
 /**
- * Renders grouped profiles in a 2-column grid layout
- * @param {Object} groupedProfiles - Object with profiles grouped by area
+ * Renders grouped profiles
  */
 function displayProfiles(groupedProfiles) {
     const container = document.getElementById('directory-container');
     container.innerHTML = '';
 
     for (const area in groupedProfiles) {
-        // Create area section wrapper
         const areaSection = document.createElement('div');
         areaSection.className = 'area-section';
         areaSection.id = `area-${area.replace(/\s+/g, '-')}`;
 
-        // Create area heading
         const areaHeading = document.createElement('h2');
         areaHeading.className = 'area-heading';
         areaHeading.textContent = area;
         areaSection.appendChild(areaHeading);
 
-        // Create grid container for profiles
         const profilesGrid = document.createElement('div');
         profilesGrid.className = 'profiles-grid';
         
@@ -153,7 +140,6 @@ function displayProfiles(groupedProfiles) {
             const image = document.createElement('img');
             image.src = profile.Image || 'https://via.placeholder.com/150';
             image.alt = profile['नाव'];
-            // ADDED: Fallback for broken images
             image.onerror = function() { this.src='https://via.placeholder.com/150'; };
             
             const infoContainer = document.createElement('div');
@@ -163,8 +149,7 @@ function displayProfiles(groupedProfiles) {
             name.textContent = profile['नाव'];
 
             const nativePlace = document.createElement('p');
-            // Using the corrected spelling for consistency
-            nativePlace.innerHTML = `<strong>मूळगाव:</strong> ${profile['मूळगाव']}`;
+            nativePlace.innerHTML = `<strong>मुळगाव:</strong> ${profile['मुळगाव']}`;
 
             const phone = document.createElement('p');
             const phoneBadge = document.createElement('div');
@@ -189,7 +174,7 @@ function displayProfiles(groupedProfiles) {
 }
 
 /**
- * Updates the current area indicator in the header based on scroll position
+ * Updates the current area indicator
  */
 function updateCurrentAreaIndicator() {
     const areaSections = document.querySelectorAll('.area-section');
@@ -216,7 +201,7 @@ function updateCurrentAreaIndicator() {
 }
 
 /**
- * Fetches profiles from Supabase and displays them
+ * Fetches and displays profiles
  */
 async function getProfiles() {
     const { data, error } = await supabaseClient
