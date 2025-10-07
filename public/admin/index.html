@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Profile Management</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../public/assets/js/config.js"></script>
+    <script src="../assets/js/config.js"></script>
     <style>
         /* [Existing CSS styles remain unchanged] */
         * {
@@ -179,27 +179,15 @@
         }
 
         .search-section {
-            display: flex;
-            gap: 1rem;
             margin-bottom: 2rem;
         }
 
         .search-section input {
-            flex: 1;
+            width: 100%;
             padding: 0.8rem;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1rem;
-        }
-
-        .search-section button {
-            padding: 0.8rem 2rem;
-            background: #FF6600;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
         }
 
         .profile-card-mini {
@@ -330,8 +318,7 @@
             <h2>Edit Profile</h2>
             
             <div class="search-section">
-                <input type="text" id="searchProfile" placeholder="Search by name or mobile...">
-                <button onclick="searchProfiles()">Search</button>
+                <input type="text" id="searchProfile" placeholder="Search by name, native place, mobile, or area...">
             </div>
 
             <div id="profileList"></div>
@@ -385,6 +372,9 @@
     <script>
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let allProfiles = [];
+        let profilesFetched = false;
+
         // --- NEW SECURITY SCRIPT ---
         document.addEventListener('DOMContentLoaded', () => {
             supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -393,6 +383,9 @@
                     window.location.href = 'login.html';
                 }
             });
+            
+            // Setup live search listener
+            document.getElementById('searchProfile').addEventListener('input', handleSearch);
         });
         
         // --- NEW LOGOUT FUNCTIONALITY ---
@@ -401,13 +394,10 @@
             if (error) {
                 console.error('Error logging out:', error);
             }
-            // The onAuthStateChange listener above will handle the redirect automatically.
         });
 
-
-        // [All your existing JavaScript functions for profile management remain here]
         // Tab switching
-        function showTab(tab) {
+        async function showTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             
@@ -417,6 +407,9 @@
             } else {
                 document.getElementById('edit-tab').classList.add('active');
                 document.querySelectorAll('.tab-btn')[1].classList.add('active');
+                if (!profilesFetched) {
+                    await fetchAllProfiles();
+                }
             }
         }
 
@@ -426,8 +419,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('imagePreview').innerHTML = 
-                        `<img src="${e.target.result}" alt="Preview">`;
+                    document.getElementById('imagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
                 };
                 reader.readAsDataURL(file);
             }
@@ -438,8 +430,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('editImagePreview').innerHTML = 
-                        `<img src="${e.target.result}" alt="Preview">`;
+                    document.getElementById('editImagePreview').innerHTML = `<img src="${e.target.result}" alt="Preview">`;
                 };
                 reader.readAsDataURL(file);
             }
@@ -500,29 +491,38 @@
                 showMessage('Profile added successfully!', 'success');
                 e.target.reset();
                 document.getElementById('imagePreview').innerHTML = '';
+                profilesFetched = false; // Invalidate cache to refetch on next edit tab visit
             }
         });
 
-        // Search profiles
-        async function searchProfiles() {
-            const searchTerm = document.getElementById('searchProfile').value.toLowerCase();
+        // Fetch all profiles and store them
+        async function fetchAllProfiles() {
             const container = document.getElementById('profileList');
+            container.innerHTML = '<div class="loading">Loading profiles...</div>';
             
-            container.innerHTML = '<div class="loading">Searching...</div>';
-            
-            const { data, error } = await supabaseClient
-                .from('profile')
-                .select('*');
+            const { data, error } = await supabaseClient.from('profile').select('*');
 
             if (error) {
-                showMessage('Error searching profiles: ' + error.message, 'error');
+                showMessage('Error fetching profiles: ' + error.message, 'error');
                 container.innerHTML = '';
                 return;
             }
 
-            const filtered = data.filter(profile => 
-                profile['नाव']?.toLowerCase().includes(searchTerm) || 
-                profile['मोबाईल नंबर']?.includes(searchTerm)
+            allProfiles = data;
+            profilesFetched = true;
+            displayProfiles(allProfiles);
+        }
+
+        // Live search handler
+        function handleSearch() {
+            if (!profilesFetched) return;
+            const searchTerm = document.getElementById('searchProfile').value.toLowerCase().trim();
+            
+            const filtered = allProfiles.filter(profile => 
+                (profile['नाव']?.toLowerCase().includes(searchTerm)) || 
+                (profile['मोबाईल नंबर']?.includes(searchTerm)) ||
+                (profile['मुळगाव']?.toLowerCase().includes(searchTerm)) ||
+                (profile['Area']?.toLowerCase().includes(searchTerm))
             );
 
             displayProfiles(filtered);
@@ -556,25 +556,21 @@
 
         // Edit profile
         async function editProfile(id) {
-            const { data, error } = await supabaseClient
-                .from('profile')
-                .select('*')
-                .eq('id', id)
-                .single();
-
-            if (error) {
-                showMessage('Error loading profile: ' + error.message, 'error');
+            const profileData = allProfiles.find(p => p.id === id);
+            if (!profileData) {
+                showMessage('Could not find profile to edit.', 'error');
                 return;
             }
 
-            document.getElementById('editProfileId').value = data.id;
-            document.getElementById('edit-नाव').value = data['नाव'];
-            document.getElementById('edit-मुळगाव').value = data['मुळगाव'];
-            document.getElementById('edit-मोबाईल नंबर').value = data['मोबाईल नंबर'];
-            document.getElementById('edit-Area').value = data.Area;
-            document.getElementById('currentImage').src = data.Image || 'https://via.placeholder.com/150';
+            document.getElementById('editProfileId').value = profileData.id;
+            document.getElementById('edit-नाव').value = profileData['नाव'];
+            document.getElementById('edit-मुळगाव').value = profileData['मुळगाव'];
+            document.getElementById('edit-मोबाईल नंबर').value = profileData['मोबाईल नंबर'];
+            document.getElementById('edit-Area').value = profileData.Area;
+            document.getElementById('currentImage').src = profileData.Image || 'https://via.placeholder.com/150';
 
             document.getElementById('profileList').style.display = 'none';
+            document.getElementById('searchProfile').style.display = 'none';
             document.getElementById('editForm').style.display = 'block';
         }
 
@@ -608,6 +604,7 @@
                 showMessage('Error updating profile: ' + error.message, 'error');
             } else {
                 showMessage('Profile updated successfully!', 'success');
+                profilesFetched = false; // Invalidate cache to refetch
                 cancelEdit();
             }
         });
@@ -629,6 +626,7 @@
                 showMessage('Error deleting profile: ' + error.message, 'error');
             } else {
                 showMessage('Profile deleted successfully!', 'success');
+                profilesFetched = false; // Invalidate cache
                 cancelEdit();
             }
         }
@@ -637,8 +635,13 @@
         function cancelEdit() {
             document.getElementById('editForm').style.display = 'none';
             document.getElementById('profileList').style.display = 'block';
+            document.getElementById('searchProfile').style.display = 'block';
             document.getElementById('editImagePreview').innerHTML = '';
-            searchProfiles();
+            
+            // If profiles were fetched, just re-display them from memory
+            if(profilesFetched) {
+                handleSearch();
+            }
         }
 
         // Show message

@@ -63,43 +63,40 @@ function setupSearch() {
     
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
-        const allCards = document.querySelectorAll('.profile-card');
         const allSections = document.querySelectorAll('.area-section');
         
         if (searchTerm === '') {
-            // Show all cards and sections
-            allCards.forEach(card => card.style.display = 'flex');
-            allSections.forEach(section => section.style.display = 'flex');
+            // If search is empty, show everything
+            allSections.forEach(section => {
+                section.style.display = 'flex';
+                section.querySelectorAll('.profile-card').forEach(card => card.style.display = 'flex');
+            });
             return;
         }
         
-        // Hide all sections first
         allSections.forEach(section => {
-            const visibleCards = [];
+            let sectionHasVisibleCards = false;
             const cards = section.querySelectorAll('.profile-card');
             
             cards.forEach(card => {
-                const name = card.querySelector('h3')?.textContent.toLowerCase() || '';
-                const area = section.querySelector('.area-heading')?.textContent.toLowerCase() || '';
-                const mulgaav = card.querySelector('.info-container p:nth-child(2)')?.textContent.toLowerCase() || '';
-                const phone = card.querySelector('.phone-badge')?.textContent.toLowerCase() || '';
+                // Extract all text content from the card for a comprehensive search
+                const cardText = card.textContent.toLowerCase();
                 
-                if (name.includes(searchTerm) || 
-                    area.includes(searchTerm) || 
-                    mulgaav.includes(searchTerm) || 
-                    phone.includes(searchTerm)) {
+                // Check if the card's text includes the search term
+                if (cardText.includes(searchTerm)) {
                     card.style.display = 'flex';
-                    visibleCards.push(card);
+                    sectionHasVisibleCards = true;
                 } else {
                     card.style.display = 'none';
                 }
             });
             
-            // Show section only if it has visible cards
-            section.style.display = visibleCards.length > 0 ? 'flex' : 'none';
+            // Show the section only if it has cards that match the search
+            section.style.display = sectionHasVisibleCards ? 'flex' : 'none';
         });
     });
 }
+
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
