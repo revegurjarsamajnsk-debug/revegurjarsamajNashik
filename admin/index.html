@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Profile Management</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../assets/js/config.js"></script>
+    <script src="../public/assets/js/config.js"></script>
     <style>
+        /* [Existing CSS styles remain unchanged] */
         * {
             margin: 0;
             padding: 0;
@@ -34,6 +35,29 @@
             margin-bottom: 2rem;
             text-align: center;
             font-size: 2rem;
+        }
+        
+        /* New Logout Button Style */
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .btn-logout {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            background: #dc3545;
+            color: #fff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn-logout:hover {
+            background: #c82333;
         }
 
         .tabs {
@@ -257,7 +281,10 @@
 </head>
 <body>
     <div class="admin-container">
-        <h1>Profile Management</h1>
+        <div class="header-section">
+            <h1>Profile Management</h1>
+            <button id="logoutButton" class="btn-logout">Logout</button>
+        </div>
         
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('add')">Add New Profile</button>
@@ -266,7 +293,6 @@
 
         <div id="message"></div>
 
-        <!-- Add Profile Tab -->
         <div id="add-tab" class="tab-content active">
             <h2>Add New Profile</h2>
             <form id="addProfileForm">
@@ -300,7 +326,6 @@
             </form>
         </div>
 
-        <!-- Edit Profile Tab -->
         <div id="edit-tab" class="tab-content">
             <h2>Edit Profile</h2>
             
@@ -360,6 +385,27 @@
     <script>
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // --- NEW SECURITY SCRIPT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            supabaseClient.auth.onAuthStateChange((event, session) => {
+                if (!session) {
+                    // If no one is logged in, redirect to the login page
+                    window.location.href = 'login.html';
+                }
+            });
+        });
+        
+        // --- NEW LOGOUT FUNCTIONALITY ---
+        document.getElementById('logoutButton').addEventListener('click', async () => {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) {
+                console.error('Error logging out:', error);
+            }
+            // The onAuthStateChange listener above will handle the redirect automatically.
+        });
+
+
+        // [All your existing JavaScript functions for profile management remain here]
         // Tab switching
         function showTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
