@@ -167,6 +167,7 @@
                 <li><a href="home.html">Home</a></li>
                 <li><a href="ParichayList.html">Parichay List</a></li>
                 <li><a href="contacts.html">संपर्क माहिती</a></li>
+                <li><a href="../../admin/login.html">Admin Login</a></li>
             </ul>
         </nav>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
