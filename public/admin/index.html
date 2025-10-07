@@ -441,7 +441,7 @@
             if (!file) return null;
             
             const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const fileName = `public/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
             const { data, error } = await supabaseClient.storage
                 .from('profile-images')
@@ -455,9 +455,27 @@
 
             const { data: urlData } = supabaseClient.storage
                 .from('profile-images')
-                .getPublicUrl(fileName);
+                .getPublicUrl(data.path);
 
             return urlData.publicUrl;
+        }
+        
+        // --- NEW --- Delete an image from Supabase Storage
+        async function deleteImage(imageUrl) {
+            if (!imageUrl) return;
+
+            // Extract the file path from the full URL
+            const filePath = imageUrl.split('/profile-images/')[1];
+            if (!filePath) return;
+
+            const { error } = await supabaseClient.storage
+                .from('profile-images')
+                .remove([filePath]);
+
+            if (error) {
+                console.error('Error deleting old image:', error);
+                // Don't show an error to the user, just log it.
+            }
         }
 
         // Add new profile
@@ -574,24 +592,29 @@
             document.getElementById('editForm').style.display = 'block';
         }
 
-        // Update profile
+        // Update profile --- MODIFIED ---
         document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const id = document.getElementById('editProfileId').value;
+            const oldProfileData = allProfiles.find(p => p.id == id);
+            
             const profileData = {
                 'नाव': document.getElementById('edit-नाव').value,
                 'मुळगाव': document.getElementById('edit-मुळगाव').value,
-                'मोबाईल नंबर': document.getElementById('edit-मोबाईल नंबर').value,
+                'мобіль नंबर': document.getElementById('edit-мобіль नंबर').value,
                 'Area': document.getElementById('edit-Area').value
             };
 
-            // Upload new image if selected
             const imageFile = document.getElementById('editImageUpload').files[0];
             if (imageFile) {
                 const imageUrl = await uploadImage(imageFile);
                 if (imageUrl) {
                     profileData.Image = imageUrl;
+                    // If a new image was uploaded, delete the old one
+                    if(oldProfileData && oldProfileData.Image) {
+                        await deleteImage(oldProfileData.Image);
+                    }
                 }
             }
 
@@ -609,22 +632,29 @@
             }
         });
 
-        // Delete profile
+        // Delete profile --- MODIFIED ---
         async function deleteProfile() {
             if (!confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
                 return;
             }
 
             const id = document.getElementById('editProfileId').value;
+            const profileToDelete = allProfiles.find(p => p.id == id);
 
-            const { error } = await supabaseClient
+            // First, delete the profile from the database
+            const { error: dbError } = await supabaseClient
                 .from('profile')
                 .delete()
                 .eq('id', id);
 
-            if (error) {
-                showMessage('Error deleting profile: ' + error.message, 'error');
+            if (dbError) {
+                showMessage('Error deleting profile: ' + dbError.message, 'error');
             } else {
+                // If the database deletion was successful, delete the image
+                if(profileToDelete && profileToDelete.Image) {
+                    await deleteImage(profileToDelete.Image);
+                }
+                
                 showMessage('Profile deleted successfully!', 'success');
                 profilesFetched = false; // Invalidate cache
                 cancelEdit();
@@ -637,10 +667,13 @@
             document.getElementById('profileList').style.display = 'block';
             document.getElementById('searchProfile').style.display = 'block';
             document.getElementById('editImagePreview').innerHTML = '';
+            document.getElementById('editImageUpload').value = ''; // Clear the file input
             
-            // If profiles were fetched, just re-display them from memory
-            if(profilesFetched) {
-                handleSearch();
+            // If profiles were not fetched, fetch them now
+            if(!profilesFetched) {
+                fetchAllProfiles();
+            } else {
+                handleSearch(); // Otherwise, just refresh the displayed list
             }
         }
 

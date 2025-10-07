@@ -121,7 +121,7 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
-        /* --- NEW CSS FOR THE ADMIN BUTTON --- */
+        /* --- CSS FOR THE ADMIN BUTTON --- */
         .sidebar-nav-menu .admin-link-li {
             margin-top: 3rem; /* Pushes the button down */
             border-top: 1px solid rgba(255, 255, 255, 0.2); /* Adds a separator line */
@@ -138,7 +138,7 @@
             background: #c82333; /* Darker red on hover */
             transform: translateY(-2px) translateX(0); /* Remove side-shift on hover */
         }
-        /* --- END OF NEW CSS --- */
+        /* --- END OF ADMIN BUTTON CSS --- */
 
         .sidebar-overlay {
             position: fixed;
@@ -184,12 +184,12 @@
                 <h2>परिचय</h2>
             </div>
             <ul class="sidebar-nav-menu">
-                <li><a href="home.html">Home</a></li>
-                <li><a href="ParichayList.html">Parichay List</a></li>
-                <li><a href="contacts.html">संपर्क माहिती</a></li>
+                <li><a href="/home.html">Home</a></li>
+                <li><a href="/ParichayList.html">Parichay List</a></li>
+                <li><a href="/contacts.html">संपर्क माहिती</a></li>
 
                 <li class="admin-link-li">
-                    <a href="admin/login.html" class="admin-link">Admin Login</a>
+                    <a href="/admin/login.html" class="admin-link">Admin Login</a>
                 </li>
             </ul>
         </nav>
@@ -199,7 +199,7 @@
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
     
     // Show search bar only on ParichayList page
-    if (window.location.pathname.includes('ParichayList') || document.getElementById('directory-container')) {
+    if (window.location.pathname.includes('ParichayList')) {
         const searchContainer = document.getElementById('searchContainer');
         if (searchContainer) {
             searchContainer.style.display = 'block';
