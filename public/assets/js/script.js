@@ -142,34 +142,30 @@ function displayProfiles(groupedProfiles) {
         
         const profilesInArea = groupedProfiles[area];
         
-        // Add single-item class if only one profile in area (but keep grid structure)
         if (profilesInArea.length === 1) {
             profilesGrid.classList.add('single-item');
         }
 
-        // Create profile cards
         profilesInArea.forEach(profile => {
             const card = document.createElement('div');
             card.className = 'profile-card';
 
-            // Profile image
             const image = document.createElement('img');
             image.src = profile.Image || 'https://via.placeholder.com/150';
             image.alt = profile['नाव'];
+            // ADDED: Fallback for broken images
+            image.onerror = function() { this.src='https://via.placeholder.com/150'; };
             
-            // Info container
             const infoContainer = document.createElement('div');
             infoContainer.className = 'info-container';
             
-            // Name (नाव)
             const name = document.createElement('h3');
             name.textContent = profile['नाव'];
 
-            // Native Place (मुळगाव)
             const nativePlace = document.createElement('p');
-            nativePlace.innerHTML = `<strong>मुळगाव:</strong> ${profile['मुळगाव']}`;
+            // Using the corrected spelling for consistency
+            nativePlace.innerHTML = `<strong>मूळगाव:</strong> ${profile['मूळगाव']}`;
 
-            // Phone (मोबाईल नंबर - clickable for mobile with special badge)
             const phone = document.createElement('p');
             const phoneBadge = document.createElement('div');
             phoneBadge.className = 'phone-badge';
@@ -177,7 +173,6 @@ function displayProfiles(groupedProfiles) {
             phone.innerHTML = '<strong>मोबाईल नंबर:</strong> ';
             phone.appendChild(phoneBadge);
 
-            // Append all info elements
             infoContainer.appendChild(name);
             infoContainer.appendChild(nativePlace);
             infoContainer.appendChild(phone);
@@ -195,16 +190,14 @@ function displayProfiles(groupedProfiles) {
 
 /**
  * Updates the current area indicator in the header based on scroll position
- * Uses Intersection Observer for accurate detection
  */
 function updateCurrentAreaIndicator() {
     const areaSections = document.querySelectorAll('.area-section');
     const indicator = document.getElementById('current-area-indicator');
     
-    // Create intersection observer for better area detection
     const observerOptions = {
         root: null,
-        rootMargin: '-50% 0px -50% 0px', // Trigger when section is in middle 50% of viewport
+        rootMargin: '-50% 0px -50% 0px',
         threshold: 0
     };
     
@@ -219,7 +212,6 @@ function updateCurrentAreaIndicator() {
         });
     }, observerOptions);
     
-    // Observe all area sections
     areaSections.forEach(section => observer.observe(section));
 }
 
@@ -242,7 +234,6 @@ async function getProfiles() {
     displayProfiles(groupedProfiles);
     createAreaMenu(groupedProfiles);
     
-    // Initialize area indicator after profiles are displayed
     updateCurrentAreaIndicator();
 }
 

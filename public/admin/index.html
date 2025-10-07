@@ -7,6 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/config.js"></script>
     <style>
+        /* [Existing CSS styles remain unchanged] */
         * {
             margin: 0;
             padding: 0;
@@ -433,7 +434,7 @@
             }
         });
 
-        // FIXED: Upload image to Supabase Storage
+        // Upload image to Supabase Storage
         async function uploadImage(file) {
             if (!file) return null;
             
@@ -457,12 +458,11 @@
             return urlData.publicUrl;
         }
         
-        // FIXED: Delete image from Supabase Storage
+        // Delete image from Supabase Storage
         async function deleteImage(imageUrl) {
             if (!imageUrl || !imageUrl.includes('profile-images')) return;
 
             try {
-                // Extract the file path from the full URL
                 const urlParts = imageUrl.split('/profile-images/');
                 if (urlParts.length < 2) return;
                 
@@ -475,8 +475,6 @@
 
                 if (error) {
                     console.error('Error deleting old image:', error);
-                } else {
-                    console.log('Successfully deleted old image:', filePath);
                 }
             } catch (err) {
                 console.error('Exception while deleting image:', err);
@@ -494,7 +492,6 @@
                 profileData[key] = value;
             });
 
-            // Upload image if provided
             const imageFile = document.getElementById('imageUpload').files[0];
             if (imageFile) {
                 const imageUrl = await uploadImage(imageFile);
@@ -506,10 +503,10 @@
                 }
             }
 
-            // Insert into database
             const { data, error } = await supabaseClient
                 .from('profile')
-                .insert([profileData]);
+                .insert([profileData])
+                .select();
 
             if (error) {
                 showMessage('Error adding profile: ' + error.message, 'error');
@@ -597,15 +594,14 @@
             document.getElementById('edit-मोबाईल नंबर').value = profileData['मोबाईल नंबर'];
             document.getElementById('edit-Area').value = profileData.Area;
             
-            const currentImg = document.getElementById('currentImage');
-            currentImg.src = profileData.Image || 'https://via.placeholder.com/150';
+            document.getElementById('currentImage').src = profileData.Image || 'https://via.placeholder.com/150';
 
             document.getElementById('profileList').style.display = 'none';
             document.getElementById('searchProfile').style.display = 'none';
             document.getElementById('editForm').style.display = 'block';
         }
 
-        // FIXED: Update profile with proper image deletion
+        // Update profile
         document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -621,12 +617,9 @@
 
             const imageFile = document.getElementById('editImageUpload').files[0];
             if (imageFile) {
-                // Upload new image first
                 const imageUrl = await uploadImage(imageFile);
                 if (imageUrl) {
                     profileData.Image = imageUrl;
-                    
-                    // Delete old image AFTER successful upload
                     if (oldProfileData && oldProfileData.Image) {
                         await deleteImage(oldProfileData.Image);
                     }
@@ -650,7 +643,7 @@
             }
         });
 
-        // FIXED: Delete profile with proper image cleanup
+        // Delete profile
         async function deleteProfile() {
             if (!confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
                 return;
@@ -659,7 +652,6 @@
             const id = document.getElementById('editProfileId').value;
             const profileToDelete = allProfiles.find(p => p.id == id);
 
-            // Delete from database first
             const { error: dbError } = await supabaseClient
                 .from('profile')
                 .delete()
@@ -668,7 +660,6 @@
             if (dbError) {
                 showMessage('Error deleting profile: ' + dbError.message, 'error');
             } else {
-                // Delete image after successful database deletion
                 if (profileToDelete && profileToDelete.Image) {
                     await deleteImage(profileToDelete.Image);
                 }
