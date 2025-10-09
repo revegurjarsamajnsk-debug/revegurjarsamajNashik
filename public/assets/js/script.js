@@ -57,22 +57,18 @@ function setupAreaMenuToggle() {
 /**
  * Setup search functionality
  */
+// In public/assets/js/script.js
+
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
+    const noResultsMessage = document.getElementById('no-results'); // Get the message element
     if (!searchInput) return;
-    
+
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase().trim();
         const allSections = document.querySelectorAll('.area-section');
-        
-        if (searchTerm === '') {
-            allSections.forEach(section => {
-                section.style.display = 'flex';
-                section.querySelectorAll('.profile-card').forEach(card => card.style.display = 'flex');
-            });
-            return;
-        }
-        
+        let totalVisibleCards = 0;
+
         allSections.forEach(section => {
             let sectionHasVisibleCards = false;
             const cards = section.querySelectorAll('.profile-card');
@@ -83,6 +79,7 @@ function setupSearch() {
                 if (cardText.includes(searchTerm)) {
                     card.style.display = 'flex';
                     sectionHasVisibleCards = true;
+                    totalVisibleCards++;
                 } else {
                     card.style.display = 'none';
                 }
@@ -90,6 +87,11 @@ function setupSearch() {
             
             section.style.display = sectionHasVisibleCards ? 'flex' : 'none';
         });
+
+        // Show or hide the "No results" message
+        if (noResultsMessage) {
+            noResultsMessage.style.display = totalVisibleCards === 0 ? 'block' : 'none';
+        }
     });
 }
 

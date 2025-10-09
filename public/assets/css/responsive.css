@@ -1,0 +1,117 @@
+/* ==========================================================================
+   Responsive Design for Mobile Devices
+   ========================================================================== */
+
+/* --- General adjustments for smaller screens --- */
+@media (max-width: 768px) {
+    body {
+        padding: 1rem;
+    }
+
+    /* --- ParichayList.html --- */
+    main {
+        padding: 1rem;
+        padding-top: 8rem; /* Add more top padding to avoid content being hidden by the header */
+    }
+
+    .profiles-grid {
+        grid-template-columns: 1fr; /* Switch to a single column layout */
+    }
+    
+    .profiles-grid.single-item .profile-card {
+        max-width: 100%;
+    }
+
+    .profile-card {
+        padding: 1.5rem;
+        min-height: auto; /* Allow cards to have natural height */
+    }
+
+    .area-heading {
+        font-size: 1.2rem;
+        padding: 0.75rem 1.5rem;
+    }
+
+    /* Header adjustments */
+    #current-area-indicator {
+        display: none; /* Hide the area indicator on mobile to save space */
+    }
+
+    #area-menu-toggle {
+        right: 1.5rem; /* Reposition menu toggle */
+    }
+
+    #area-menu {
+        right: 1.5rem;
+        left: auto;
+        width: 280px;
+    }
+
+    /* Search bar adjustments */
+    .search-container {
+        left: 6rem; /* Adjust position relative to the sidebar toggle */
+        right: 6rem; /* Add space for the area menu toggle */
+        top: 1.5rem; /* Align with other header elements */
+    }
+
+    /* --- home.html --- */
+    .header-banner {
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .banner-container {
+        padding: 1.5rem;
+    }
+
+    .banner-text {
+        font-size: 1.2rem; /* Reduce font size */
+        white-space: normal; /* Allow text to wrap */
+        letter-spacing: 1px;
+    }
+    
+    .banner-circle {
+        display: none; /* Hide decorative circles on mobile */
+    }
+
+    .credits-box {
+        position: static; /* Make it part of the normal document flow */
+        margin: 2rem auto 0;
+        max-width: 280px;
+        right: auto;
+        bottom: auto;
+    }
+    
+    .content-area .placed-img,
+    .content-area div {
+        width: 100%;
+        left: 0;
+        transform: none;
+        padding: 0;
+        flex-direction: column; /* Stack images vertically */
+    }
+    
+    .content-area img {
+        width: 100%;
+        margin-bottom: 1rem;
+    }
+    
+    /* --- contacts.html --- */
+    .container {
+        padding: 1.5rem;
+        margin: 5rem 1rem 1rem;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .section-header {
+        font-size: 1.1rem;
+    }
+
+    /* --- login.html --- */
+    .login-container {
+        padding: 2rem 1.5rem;
+    }
+}

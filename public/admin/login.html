@@ -14,19 +14,22 @@
             min-height: 100vh;
             margin: 0;
             overflow-x: hidden; /* Prevent horizontal scrollbar */
-        }
-        
-        /* NEW: Main content wrapper */
-        #main-content {
-            transition: transform 0.4s ease;
-            width: 100%;
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
         }
         
-        /* NEW: Class to shift content when sidebar is active */
+        /* Main content wrapper */
+        #main-content {
+            transition: transform 0.4s ease;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        /* Class to shift content when sidebar is active */
         #main-content.sidebar-active {
             transform: translateX(175px); /* Half of sidebar width */
         }
@@ -94,7 +97,7 @@
     </style>
 </head>
 <body>
-    <main id="main-content">
+    <div id="main-content">
         <div class="login-container">
             <h1>Admin Login</h1>
             <form id="loginForm">
@@ -110,7 +113,7 @@
             </form>
             <p id="error-message"></p>
         </div>
-    </main>
+    </div>
 
     <script src="../assets/js/sidebar.js"></script>
     <script>
@@ -132,30 +135,24 @@
                 errorMessage.textContent = 'Login Failed: ' + error.message;
                 errorMessage.style.display = 'block';
             } else {
-                // On successful login, redirect to the admin panel
                 window.location.href = 'index.html';
             }
         });
         
-        // --- NEW SCRIPT TO HANDLE CONTENT SHIFT ---
-        // This code waits for the sidebar to be added to the page, then watches it for changes.
+        // --- SCRIPT TO HANDLE CONTENT SHIFT ---
         document.addEventListener('DOMContentLoaded', () => {
-            // Use a timeout to ensure sidebar.js has added the #sidebarNav element
             setTimeout(() => {
                 const sidebar = document.getElementById('sidebarNav');
                 const mainContent = document.getElementById('main-content');
                 if (!sidebar || !mainContent) return;
 
-                // This "observes" the sidebar element for any changes to its 'class' attribute.
                 const observer = new MutationObserver(() => {
-                    const isActive = sidebar.classList.contains('active');
-                    mainContent.classList.toggle('sidebar-active', isActive);
+                    mainContent.classList.toggle('sidebar-active', sidebar.classList.contains('active'));
                 });
 
                 observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-            }, 100); // 100ms delay is usually enough
+            }, 100);
         });
-
     </script>
 </body>
 </html>
