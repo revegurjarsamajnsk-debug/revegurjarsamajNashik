@@ -4,6 +4,7 @@
  */
 function createAreaMenu(groupedProfiles) {
     const menuList = document.getElementById('area-menu-list');
+    if (!menuList) return;
     menuList.innerHTML = '';
     
     for (const area in groupedProfiles) {
@@ -38,6 +39,8 @@ function createAreaMenu(groupedProfiles) {
 function setupAreaMenuToggle() {
     const toggle = document.getElementById('area-menu-toggle');
     const menu = document.getElementById('area-menu');
+    
+    if (!toggle || !menu) return;
     
     toggle.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -110,16 +113,13 @@ function groupProfilesByArea(profiles) {
 /**
  * Helper function to get proper image URL from Supabase
  */
-function getImageUrl(imageUrl) {
-    if (!imageUrl) return 'https://via.placeholder.com/150';
+function getImageUrl(imagePath) {
+    if (!imagePath) return 'https://via.placeholder.com/150?text=No+Image';
     
-    // If it's already a full URL, return it
-    if (imageUrl.startsWith('http')) return imageUrl;
-    
-    // If it's a path, construct the full URL
+    // Always construct the URL from the path stored in the DB
     const { data } = supabaseClient.storage
         .from('profile-images')
-        .getPublicUrl(imageUrl);
+        .getPublicUrl(imagePath);
     
     return data.publicUrl;
 }
@@ -161,7 +161,6 @@ function displayProfiles(groupedProfiles) {
             
             // Improved error handling for images
             image.onerror = function() { 
-                console.error('Failed to load image:', imageUrl);
                 this.src = 'https://via.placeholder.com/150?text=No+Image'; 
             };
             
@@ -204,7 +203,7 @@ function updateCurrentAreaIndicator() {
     const areaSections = document.querySelectorAll('.area-section');
     const indicator = document.getElementById('current-area-indicator');
     
-    if (!indicator) return;
+    if (!indicator || areaSections.length === 0) return;
     
     const observerOptions = {
         root: null,
@@ -231,8 +230,8 @@ function updateCurrentAreaIndicator() {
  */
 async function getProfiles() {
     const container = document.getElementById('directory-container');
-    
-    // Show loading state
+    if (!container) return;
+
     container.innerHTML = '<p style="text-align: center; color: #667eea; font-size: 1.2rem;">Loading profiles...</p>';
     
     try {
@@ -241,9 +240,7 @@ async function getProfiles() {
             .select('*')
             .order('Area', { ascending: true });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
         
         if (!data || data.length === 0) {
             container.innerHTML = '<p style="text-align: center; color: #999; font-size: 1.2rem;">No profiles found.</p>';

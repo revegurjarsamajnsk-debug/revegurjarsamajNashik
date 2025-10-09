@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="mr">
 <head>
-    <link rel="icon" href="/assets/images/favicon.ico" type="image/x-icon">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Profile Management</title>
@@ -263,7 +262,7 @@
                 </div>
                 <div class="form-group">
                     <label>मोबाईल नंबर (Mobile Number)*</label>
-                    <input type="tel" name="मोबाईल नंबर" pattern="[0-9]{10}" required>
+                    <input type="tel" name="मोबाईल नंबर" pattern="[0-9]{10,}" required>
                 </div>
                 <div class="form-group">
                     <label>Area*</label>
@@ -298,7 +297,7 @@
                     </div>
                     <div class="form-group">
                         <label>मोबाईल नंबर (Mobile Number)*</label>
-                        <input type="tel" id="edit-मोबाईल नंबर" pattern="[0-9]{10}" required>
+                        <input type="tel" id="edit-मोबाईल नंबर" pattern="[0-9]{10,}" required>
                     </div>
                     <div class="form-group">
                         <label>Area*</label>
@@ -328,13 +327,12 @@
         let allProfiles = [];
         let profilesFetched = false;
 
-        // Helper function to get proper image URL
-        function getImageUrl(imageUrl) {
-            if (!imageUrl) return 'https://via.placeholder.com/80?text=No+Image';
-            if (imageUrl.startsWith('http')) return imageUrl;
+        // Helper function to get proper image URL from a path
+        function getImageUrl(imagePath) {
+            if (!imagePath) return 'https://via.placeholder.com/80?text=No+Image';
             const { data } = supabaseClient.storage
                 .from('profile-images')
-                .getPublicUrl(imageUrl);
+                .getPublicUrl(imagePath);
             return data.publicUrl;
         }
 
@@ -392,6 +390,7 @@
             }
         });
 
+        // **MODIFIED** to return image path instead of full URL
         async function uploadImage(file, statusElementId) {
             if (!file) return null;
             const statusEl = document.getElementById(statusElementId);
@@ -412,36 +411,24 @@
                         cacheControl: '3600',
                         upsert: false
                     });
-                if (error) {
-                    console.error('Upload error:', error);
-                    throw error;
-                }
-                const { data: urlData } = supabaseClient.storage
-                    .from('profile-images')
-                    .getPublicUrl(data.path);
+                if (error) throw error;
                 if (statusEl) statusEl.textContent = 'Upload successful!';
-                setTimeout(() => {
-                    if (statusEl) statusEl.textContent = '';
-                }, 2000);
-                return urlData.publicUrl;
+                setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 2000);
+                return data.path; // Return the path
             } catch (error) {
-                console.error('Error uploading image:', error);
                 showMessage('Error uploading image: ' + error.message, 'error');
                 if (statusEl) statusEl.textContent = '';
                 return null;
             }
         }
 
-        async function deleteImage(imageUrl) {
-            if (!imageUrl || !imageUrl.includes('profile-images')) return;
+        // **MODIFIED** to work directly with an image path
+        async function deleteImage(imagePath) {
+            if (!imagePath) return;
             try {
-                const urlParts = imageUrl.split('/profile-images/');
-                if (urlParts.length < 2) return;
-                const filePath = urlParts[1];
-                if (!filePath) return;
                 const { error } = await supabaseClient.storage
                     .from('profile-images')
-                    .remove([filePath]);
+                    .remove([imagePath]);
                 if (error) {
                     console.error('Error deleting old image:', error);
                 }
@@ -458,15 +445,13 @@
 
             const formData = new FormData(e.target);
             const profileData = {};
-            formData.forEach((value, key) => {
-                profileData[key] = value;
-            });
+            formData.forEach((value, key) => { profileData[key] = value; });
 
             const imageFile = document.getElementById('imageUpload').files[0];
             if (imageFile) {
-                const imageUrl = await uploadImage(imageFile, 'uploadStatus');
-                if (imageUrl) {
-                    profileData.Image = imageUrl;
+                const imagePath = await uploadImage(imageFile, 'uploadStatus');
+                if (imagePath) {
+                    profileData.Image = imagePath; // Store the path
                 } else {
                     showMessage('Failed to upload image. Please try again.', 'error');
                     submitBtn.disabled = false;
@@ -484,7 +469,7 @@
                 showMessage('Profile added successfully!', 'success');
                 e.target.reset();
                 document.getElementById('imagePreview').innerHTML = '';
-                profilesFetched = false; // Refresh list on next view
+                profilesFetched = false;
             } catch (error) {
                 showMessage('Error adding profile: ' + error.message, 'error');
             } finally {
@@ -585,11 +570,11 @@
 
             const imageFile = document.getElementById('editImageUpload').files[0];
             if (imageFile) {
-                const imageUrl = await uploadImage(imageFile, 'editUploadStatus');
-                if (imageUrl) {
-                    profileData.Image = imageUrl;
+                const imagePath = await uploadImage(imageFile, 'editUploadStatus');
+                if (imagePath) {
+                    profileData.Image = imagePath; // Store the new path
                     if (oldProfileData && oldProfileData.Image) {
-                        await deleteImage(oldProfileData.Image);
+                        await deleteImage(oldProfileData.Image); // Delete using the old path
                     }
                 } else {
                     showMessage('Failed to upload new image. Update cancelled.', 'error');
@@ -600,7 +585,7 @@
             }
 
             try {
-                const { data, error } = await supabaseClient
+                const { error } = await supabaseClient
                     .from('profile')
                     .update(profileData)
                     .eq('id', id);
@@ -620,7 +605,6 @@
             if (!confirm('Are you sure you want to delete this profile? This action cannot be undone.')) {
                 return;
             }
-
             const id = document.getElementById('editProfileId').value;
             const profileToDelete = allProfiles.find(p => p.id == id);
 
@@ -632,9 +616,8 @@
                 if (dbError) throw dbError;
 
                 if (profileToDelete && profileToDelete.Image) {
-                    await deleteImage(profileToDelete.Image);
+                    await deleteImage(profileToDelete.Image); // Delete using the path
                 }
-
                 showMessage('Profile deleted successfully!', 'success');
                 profilesFetched = false;
                 cancelEdit();
@@ -652,7 +635,7 @@
             if (!profilesFetched) {
                 fetchAllProfiles();
             } else {
-                handleSearch(); // Re-filter if needed
+                handleSearch();
             }
         }
 
