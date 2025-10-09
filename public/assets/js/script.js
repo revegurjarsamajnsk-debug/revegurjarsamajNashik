@@ -108,7 +108,24 @@ function groupProfilesByArea(profiles) {
 }
 
 /**
- * Renders grouped profiles
+ * Helper function to get proper image URL from Supabase
+ */
+function getImageUrl(imageUrl) {
+    if (!imageUrl) return 'https://via.placeholder.com/150';
+    
+    // If it's already a full URL, return it
+    if (imageUrl.startsWith('http')) return imageUrl;
+    
+    // If it's a path, construct the full URL
+    const { data } = supabaseClient.storage
+        .from('profile-images')
+        .getPublicUrl(imageUrl);
+    
+    return data.publicUrl;
+}
+
+/**
+ * Renders grouped profiles with improved image handling
  */
 function displayProfiles(groupedProfiles) {
     const container = document.getElementById('directory-container');
@@ -138,23 +155,30 @@ function displayProfiles(groupedProfiles) {
             card.className = 'profile-card';
 
             const image = document.createElement('img');
-            image.src = profile.Image || 'https://via.placeholder.com/150';
-            image.alt = profile['नाव'];
-            image.onerror = function() { this.src='https://via.placeholder.com/150'; };
+            const imageUrl = getImageUrl(profile.Image);
+            image.src = imageUrl;
+            image.alt = profile['नाव'] || 'Profile';
+            
+            // Improved error handling for images
+            image.onerror = function() { 
+                console.error('Failed to load image:', imageUrl);
+                this.src = 'https://via.placeholder.com/150?text=No+Image'; 
+            };
             
             const infoContainer = document.createElement('div');
             infoContainer.className = 'info-container';
             
             const name = document.createElement('h3');
-            name.textContent = profile['नाव'];
+            name.textContent = profile['नाव'] || 'Unknown';
 
             const nativePlace = document.createElement('p');
-            nativePlace.innerHTML = `<strong>मुळगाव:</strong> ${profile['मुळगाव']}`;
+            nativePlace.innerHTML = `<strong>मुळगाव:</strong> ${profile['मुळगाव'] || 'N/A'}`;
 
             const phone = document.createElement('p');
             const phoneBadge = document.createElement('div');
             phoneBadge.className = 'phone-badge';
-            phoneBadge.innerHTML = `<a href="tel:${profile['मोबाईल नंबर']}">${profile['मोबाईल नंबर']}</a>`;
+            const phoneNumber = profile['मोबाईल नंबर'] || 'N/A';
+            phoneBadge.innerHTML = `<a href="tel:${phoneNumber}">${phoneNumber}</a>`;
             phone.innerHTML = '<strong>मोबाईल नंबर:</strong> ';
             phone.appendChild(phoneBadge);
 
@@ -180,6 +204,8 @@ function updateCurrentAreaIndicator() {
     const areaSections = document.querySelectorAll('.area-section');
     const indicator = document.getElementById('current-area-indicator');
     
+    if (!indicator) return;
+    
     const observerOptions = {
         root: null,
         rootMargin: '-50% 0px -50% 0px',
@@ -204,28 +230,41 @@ function updateCurrentAreaIndicator() {
  * Fetches and displays profiles
  */
 async function getProfiles() {
-    const { data, error } = await supabaseClient
-        .from('profile')
-        .select('*');
+    const container = document.getElementById('directory-container');
+    
+    // Show loading state
+    container.innerHTML = '<p style="text-align: center; color: #667eea; font-size: 1.2rem;">Loading profiles...</p>';
+    
+    try {
+        const { data, error } = await supabaseClient
+            .from('profile')
+            .select('*')
+            .order('Area', { ascending: true });
 
-    if (error) {
+        if (error) {
+            throw error;
+        }
+        
+        if (!data || data.length === 0) {
+            container.innerHTML = '<p style="text-align: center; color: #999; font-size: 1.2rem;">No profiles found.</p>';
+            return;
+        }
+        
+        const groupedProfiles = groupProfilesByArea(data);
+        displayProfiles(groupedProfiles);
+        createAreaMenu(groupedProfiles);
+        updateCurrentAreaIndicator();
+        
+    } catch (error) {
         console.error('Error fetching profiles:', error);
-        const container = document.getElementById('directory-container');
-        container.innerHTML = '<p style="text-align: center; color: #e53e3e; font-size: 1.2rem;">Error loading profiles. Please try again later.</p>';
-        return;
+        container.innerHTML = '<p style="text-align: center; color: #e53e3e; font-size: 1.2rem;">Error loading profiles. Please refresh the page.</p>';
     }
-    
-    const groupedProfiles = groupProfilesByArea(data);
-    displayProfiles(groupedProfiles);
-    createAreaMenu(groupedProfiles);
-    
-    updateCurrentAreaIndicator();
 }
 
 // Event Listeners
-setupAreaMenuToggle();
-
-// Initialize app
-getProfiles().then(() => {
-    setupSearch();
+document.addEventListener('DOMContentLoaded', () => {
+    setupAreaMenuToggle();
+    getProfiles().then(() => {
+        setupSearch();
+    });
 });

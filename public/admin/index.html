@@ -7,20 +7,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/config.js"></script>
     <style>
-        /* [Existing CSS styles remain unchanged] */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 2rem;
         }
-
         .admin-container {
             max-width: 900px;
             margin: 0 auto;
@@ -29,21 +26,18 @@
             border-radius: 16px;
             box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
         }
-
         h1 {
             color: #FF6600;
             margin-bottom: 2rem;
             text-align: center;
             font-size: 2rem;
         }
-        
         .header-section {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
         }
-
         .btn-logout {
             padding: 0.7rem 1.5rem;
             border: none;
@@ -58,14 +52,12 @@
         .btn-logout:hover {
             background: #c82333;
         }
-
         .tabs {
             display: flex;
             gap: 1rem;
             margin-bottom: 2rem;
             border-bottom: 3px solid #f0f0f0;
         }
-
         .tab-btn {
             padding: 1rem 2rem;
             border: none;
@@ -77,37 +69,30 @@
             transition: all 0.3s;
             font-weight: 600;
         }
-
         .tab-btn.active {
             color: #667eea;
             border-bottom-color: #667eea;
         }
-
         .tab-content {
             display: none;
             animation: fadeIn 0.3s;
         }
-
         .tab-content.active {
             display: block;
         }
-
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
-
         .form-group label {
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 600;
             color: #333;
         }
-
         .form-group input[type="text"],
         .form-group input[type="tel"] {
             width: 100%;
@@ -117,31 +102,26 @@
             font-size: 1rem;
             transition: border-color 0.3s;
         }
-
         .form-group input:focus {
             outline: none;
             border-color: #667eea;
         }
-
         .form-group input[type="file"] {
             padding: 0.5rem;
             border: 2px dashed #ddd;
             border-radius: 8px;
             width: 100%;
         }
-
         .image-preview {
             margin-top: 1rem;
             text-align: center;
         }
-
         .image-preview img {
             max-width: 150px;
             border-radius: 50%;
             border: 4px solid #FF9933;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
-
         .btn-submit, .btn-cancel, .btn-delete {
             padding: 1rem 2rem;
             border: none;
@@ -152,35 +132,32 @@
             transition: all 0.3s;
             font-weight: 600;
         }
-
         .btn-submit {
             background: #667eea;
             color: #fff;
         }
-
-        .btn-submit:hover {
+        .btn-submit:hover:not(:disabled) {
             background: #5568d3;
             transform: translateY(-2px);
         }
-
+        .btn-submit:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
         .btn-cancel {
             background: #6c757d;
             color: #fff;
         }
-
         .btn-delete {
             background: #dc3545;
             color: #fff;
         }
-
         .btn-delete:hover {
             background: #c82333;
         }
-
         .search-section {
             margin-bottom: 2rem;
         }
-
         .search-section input {
             width: 100%;
             padding: 0.8rem;
@@ -188,7 +165,6 @@
             border-radius: 8px;
             font-size: 1rem;
         }
-
         .profile-card-mini {
             display: flex;
             align-items: center;
@@ -200,12 +176,10 @@
             background: #fafafa;
             transition: all 0.3s;
         }
-
         .profile-card-mini:hover {
             border-color: #667eea;
             box-shadow: 0 4px 15px rgba(102, 126, 234, 0.1);
         }
-
         .profile-card-mini img {
             width: 80px;
             height: 80px;
@@ -213,21 +187,17 @@
             object-fit: cover;
             border: 3px solid #FF9933;
         }
-
         .profile-card-mini .info {
             flex: 1;
         }
-
         .profile-card-mini h4 {
             color: #333;
             margin-bottom: 0.3rem;
         }
-
         .profile-card-mini p {
             color: #666;
             font-size: 0.9rem;
         }
-
         .profile-card-mini button {
             padding: 0.6rem 1.2rem;
             background: #667eea;
@@ -237,7 +207,6 @@
             cursor: pointer;
             font-weight: 600;
         }
-
         #message {
             display: none;
             padding: 1rem;
@@ -246,23 +215,26 @@
             text-align: center;
             font-weight: 600;
         }
-
         #message.success {
             background: #d4edda;
             color: #155724;
             border: 2px solid #c3e6cb;
         }
-
         #message.error {
             background: #f8d7da;
             color: #721c24;
             border: 2px solid #f5c6cb;
         }
-
         .loading {
             text-align: center;
             color: #667eea;
             padding: 2rem;
+        }
+        .upload-status {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #667eea;
+            font-weight: 500;
         }
     </style>
 </head>
@@ -272,14 +244,11 @@
             <h1>Profile Management</h1>
             <button id="logoutButton" class="btn-logout">Logout</button>
         </div>
-        
         <div class="tabs">
             <button class="tab-btn active" onclick="showTab('add')">Add New Profile</button>
             <button class="tab-btn" onclick="showTab('edit')">Edit Profile</button>
         </div>
-
         <div id="message"></div>
-
         <div id="add-tab" class="tab-content active">
             <h2>Add New Profile</h2>
             <form id="addProfileForm">
@@ -287,92 +256,86 @@
                     <label>नाव (Name)*</label>
                     <input type="text" name="नाव" required>
                 </div>
-
                 <div class="form-group">
                     <label>मुळगाव (Native Place)*</label>
                     <input type="text" name="मुळगाव" required>
                 </div>
-
                 <div class="form-group">
                     <label>मोबाईल नंबर (Mobile Number)*</label>
                     <input type="tel" name="मोबाईल नंबर" pattern="[0-9]{10}" required>
                 </div>
-
                 <div class="form-group">
                     <label>Area*</label>
                     <input type="text" name="Area" required>
                 </div>
-
                 <div class="form-group">
                     <label>Profile Image</label>
                     <input type="file" id="imageUpload" accept="image/*">
+                    <div class="upload-status" id="uploadStatus"></div>
                     <div id="imagePreview" class="image-preview"></div>
                 </div>
-
-                <button type="submit" class="btn-submit">Add Profile</button>
+                <button type="submit" class="btn-submit" id="addSubmitBtn">Add Profile</button>
             </form>
         </div>
-
         <div id="edit-tab" class="tab-content">
             <h2>Edit Profile</h2>
-            
             <div class="search-section">
                 <input type="text" id="searchProfile" placeholder="Search by name, native place, mobile, or area...">
             </div>
-
             <div id="profileList"></div>
-
             <div id="editForm" style="display:none;">
                 <h3>Edit Profile</h3>
                 <form id="updateProfileForm">
                     <input type="hidden" id="editProfileId">
-                    
                     <div class="form-group">
                         <label>नाव (Name)*</label>
                         <input type="text" id="edit-नाव" required>
                     </div>
-
                     <div class="form-group">
                         <label>मुळगाव (Native Place)*</label>
                         <input type="text" id="edit-मुळगाव" required>
                     </div>
-
                     <div class="form-group">
                         <label>मोबाईल नंबर (Mobile Number)*</label>
                         <input type="tel" id="edit-मोबाईल नंबर" pattern="[0-9]{10}" required>
                     </div>
-
                     <div class="form-group">
                         <label>Area*</label>
                         <input type="text" id="edit-Area" required>
                     </div>
-
                     <div class="form-group">
                         <label>Current Image</label>
                         <div class="image-preview">
-                            <img id="currentImage" alt="Current profile" onerror="this.src='https://via.placeholder.com/150'">
+                            <img id="currentImage" alt="Current profile" onerror="this.src='https://via.placeholder.com/150?text=No+Image'">
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label>Change Image (optional)</label>
                         <input type="file" id="editImageUpload" accept="image/*">
+                        <div class="upload-status" id="editUploadStatus"></div>
                         <div id="editImagePreview" class="image-preview"></div>
                     </div>
-
-                    <button type="submit" class="btn-submit">Update Profile</button>
+                    <button type="submit" class="btn-submit" id="updateSubmitBtn">Update Profile</button>
                     <button type="button" onclick="deleteProfile()" class="btn-delete">Delete Profile</button>
                     <button type="button" onclick="cancelEdit()" class="btn-cancel">Cancel</button>
                 </form>
             </div>
         </div>
     </div>
-
     <script>
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
         let allProfiles = [];
         let profilesFetched = false;
+
+        // Helper function to get proper image URL
+        function getImageUrl(imageUrl) {
+            if (!imageUrl) return 'https://via.placeholder.com/80?text=No+Image';
+            if (imageUrl.startsWith('http')) return imageUrl;
+            const { data } = supabaseClient.storage
+                .from('profile-images')
+                .getPublicUrl(imageUrl);
+            return data.publicUrl;
+        }
 
         document.addEventListener('DOMContentLoaded', () => {
             supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -380,10 +343,9 @@
                     window.location.href = 'login.html';
                 }
             });
-            
             document.getElementById('searchProfile').addEventListener('input', handleSearch);
         });
-        
+
         document.getElementById('logoutButton').addEventListener('click', async () => {
             const { error } = await supabaseClient.auth.signOut();
             if (error) {
@@ -395,7 +357,6 @@
         async function showTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            
             if (tab === 'add') {
                 document.getElementById('add-tab').classList.add('active');
                 document.querySelectorAll('.tab-btn')[0].classList.add('active');
@@ -430,43 +391,56 @@
             }
         });
 
-        async function uploadImage(file) {
+        async function uploadImage(file, statusElementId) {
             if (!file) return null;
-            
-            const fileExt = file.name.split('.').pop();
-            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const statusEl = document.getElementById(statusElementId);
+            if (statusEl) statusEl.textContent = 'Uploading image...';
 
-            const { data, error } = await supabaseClient.storage
-                .from('profile-images')
-                .upload(fileName, file);
-
-            if (error) {
-                console.error('Error uploading image:', error);
-                showMessage('Error uploading image: ' + error.message, 'error');
+            if (file.size > 5 * 1024 * 1024) { // 5MB limit
+                showMessage('Image size should be less than 5MB', 'error');
+                if (statusEl) statusEl.textContent = '';
                 return null;
             }
 
-            const { data: urlData } = supabaseClient.storage
-                .from('profile-images')
-                .getPublicUrl(data.path);
-
-            return urlData.publicUrl;
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            try {
+                const { data, error } = await supabaseClient.storage
+                    .from('profile-images')
+                    .upload(fileName, file, {
+                        cacheControl: '3600',
+                        upsert: false
+                    });
+                if (error) {
+                    console.error('Upload error:', error);
+                    throw error;
+                }
+                const { data: urlData } = supabaseClient.storage
+                    .from('profile-images')
+                    .getPublicUrl(data.path);
+                if (statusEl) statusEl.textContent = 'Upload successful!';
+                setTimeout(() => {
+                    if (statusEl) statusEl.textContent = '';
+                }, 2000);
+                return urlData.publicUrl;
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                showMessage('Error uploading image: ' + error.message, 'error');
+                if (statusEl) statusEl.textContent = '';
+                return null;
+            }
         }
-        
+
         async function deleteImage(imageUrl) {
             if (!imageUrl || !imageUrl.includes('profile-images')) return;
-
             try {
                 const urlParts = imageUrl.split('/profile-images/');
                 if (urlParts.length < 2) return;
-                
                 const filePath = urlParts[1];
                 if (!filePath) return;
-
                 const { error } = await supabaseClient.storage
                     .from('profile-images')
                     .remove([filePath]);
-
                 if (error) {
                     console.error('Error deleting old image:', error);
                 }
@@ -477,67 +451,74 @@
 
         document.getElementById('addProfileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const submitBtn = document.getElementById('addSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+
             const formData = new FormData(e.target);
             const profileData = {};
-            
             formData.forEach((value, key) => {
                 profileData[key] = value;
             });
 
             const imageFile = document.getElementById('imageUpload').files[0];
             if (imageFile) {
-                const imageUrl = await uploadImage(imageFile);
+                const imageUrl = await uploadImage(imageFile, 'uploadStatus');
                 if (imageUrl) {
                     profileData.Image = imageUrl;
                 } else {
-                    showMessage('Failed to upload image. Profile not added.', 'error');
+                    showMessage('Failed to upload image. Please try again.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Profile';
                     return;
                 }
             }
 
-            const { data, error } = await supabaseClient
-                .from('profile')
-                .insert([profileData]);
-
-            if (error) {
-                showMessage('Error adding profile: ' + error.message, 'error');
-            } else {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile')
+                    .insert([profileData])
+                    .select();
+                if (error) throw error;
                 showMessage('Profile added successfully!', 'success');
                 e.target.reset();
                 document.getElementById('imagePreview').innerHTML = '';
-                profilesFetched = false;
+                profilesFetched = false; // Refresh list on next view
+            } catch (error) {
+                showMessage('Error adding profile: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Profile';
             }
         });
 
         async function fetchAllProfiles() {
             const container = document.getElementById('profileList');
             container.innerHTML = '<div class="loading">Loading profiles...</div>';
-            
-            const { data, error } = await supabaseClient.from('profile').select('*');
-
-            if (error) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile')
+                    .select('*')
+                    .order('Area', { ascending: true });
+                if (error) throw error;
+                allProfiles = data || [];
+                profilesFetched = true;
+                displayProfiles(allProfiles);
+            } catch (error) {
                 showMessage('Error fetching profiles: ' + error.message, 'error');
-                container.innerHTML = '';
-                return;
+                container.innerHTML = '<p style="text-align:center;color:#dc3545;">Failed to load profiles</p>';
             }
-
-            allProfiles = data;
-            profilesFetched = true;
-            displayProfiles(allProfiles);
         }
 
         function handleSearch() {
             if (!profilesFetched) return;
             const searchTerm = document.getElementById('searchProfile').value.toLowerCase().trim();
-            
-            const filtered = allProfiles.filter(profile => 
-                (profile['नाव']?.toLowerCase().includes(searchTerm)) || 
+            const filtered = allProfiles.filter(profile =>
+                (profile['नाव']?.toLowerCase().includes(searchTerm)) ||
                 (profile['मोबाईल नंबर']?.includes(searchTerm)) ||
                 (profile['मुळगाव']?.toLowerCase().includes(searchTerm)) ||
                 (profile['Area']?.toLowerCase().includes(searchTerm))
             );
-
             displayProfiles(filtered);
         }
 
@@ -553,11 +534,10 @@
             profiles.forEach(profile => {
                 const card = document.createElement('div');
                 card.className = 'profile-card-mini';
-                
-                const imgSrc = profile.Image || 'https://via.placeholder.com/80';
-                
+                const imgSrc = getImageUrl(profile.Image);
+
                 card.innerHTML = `
-                    <img src="${imgSrc}" alt="${profile['नाव']}" onerror="this.src='https://via.placeholder.com/80'">
+                    <img src="${imgSrc}" alt="${profile['नाव']}" onerror="this.src='https://via.placeholder.com/80?text=Error'">
                     <div class="info">
                         <h4>${profile['नाव']}</h4>
                         <p>${profile['मुळगाव']} | ${profile['मोबाईल नंबर']}</p>
@@ -581,9 +561,7 @@
             document.getElementById('edit-मुळगाव').value = profileData['मुळगाव'];
             document.getElementById('edit-मोबाईल नंबर').value = profileData['मोबाईल नंबर'];
             document.getElementById('edit-Area').value = profileData.Area;
-            
-            document.getElementById('currentImage').src = profileData.Image || 'https://via.placeholder.com/150';
-
+            document.getElementById('currentImage').src = getImageUrl(profileData.Image);
             document.getElementById('profileList').style.display = 'none';
             document.getElementById('searchProfile').style.display = 'none';
             document.getElementById('editForm').style.display = 'block';
@@ -591,10 +569,12 @@
 
         document.getElementById('updateProfileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+            const submitBtn = document.getElementById('updateSubmitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Updating...';
+
             const id = document.getElementById('editProfileId').value;
             const oldProfileData = allProfiles.find(p => p.id == id);
-            
             const profileData = {
                 'नाव': document.getElementById('edit-नाव').value,
                 'मुळगाव': document.getElementById('edit-मुळगाव').value,
@@ -604,7 +584,7 @@
 
             const imageFile = document.getElementById('editImageUpload').files[0];
             if (imageFile) {
-                const imageUrl = await uploadImage(imageFile);
+                const imageUrl = await uploadImage(imageFile, 'editUploadStatus');
                 if (imageUrl) {
                     profileData.Image = imageUrl;
                     if (oldProfileData && oldProfileData.Image) {
@@ -612,21 +592,26 @@
                     }
                 } else {
                     showMessage('Failed to upload new image. Update cancelled.', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Update Profile';
                     return;
                 }
             }
 
-            const { data, error } = await supabaseClient
-                .from('profile')
-                .update(profileData)
-                .eq('id', id);
-
-            if (error) {
-                showMessage('Error updating profile: ' + error.message, 'error');
-            } else {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile')
+                    .update(profileData)
+                    .eq('id', id);
+                if (error) throw error;
                 showMessage('Profile updated successfully!', 'success');
                 profilesFetched = false;
                 cancelEdit();
+            } catch (error) {
+                showMessage('Error updating profile: ' + error.message, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Update Profile';
             }
         });
 
@@ -638,21 +623,22 @@
             const id = document.getElementById('editProfileId').value;
             const profileToDelete = allProfiles.find(p => p.id == id);
 
-            const { error: dbError } = await supabaseClient
-                .from('profile')
-                .delete()
-                .eq('id', id);
+            try {
+                const { error: dbError } = await supabaseClient
+                    .from('profile')
+                    .delete()
+                    .eq('id', id);
+                if (dbError) throw dbError;
 
-            if (dbError) {
-                showMessage('Error deleting profile: ' + dbError.message, 'error');
-            } else {
                 if (profileToDelete && profileToDelete.Image) {
                     await deleteImage(profileToDelete.Image);
                 }
-                
+
                 showMessage('Profile deleted successfully!', 'success');
                 profilesFetched = false;
                 cancelEdit();
+            } catch (error) {
+                showMessage('Error deleting profile: ' + error.message, 'error');
             }
         }
 
@@ -662,11 +648,10 @@
             document.getElementById('searchProfile').style.display = 'block';
             document.getElementById('editImagePreview').innerHTML = '';
             document.getElementById('editImageUpload').value = '';
-            
             if (!profilesFetched) {
                 fetchAllProfiles();
             } else {
-                handleSearch();
+                handleSearch(); // Re-filter if needed
             }
         }
 
