@@ -1,0 +1,11 @@
+# Environment Variables
+.env
+
+# API Keys
+*.env.local
+*.env.*.local
+
+# Sensitive files
+secrets.yml
+*.key
+*.pem
