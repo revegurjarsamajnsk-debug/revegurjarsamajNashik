@@ -199,7 +199,7 @@
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
     
     // Show search bar only on ParichayList page
-    if (window.location.pathname.includes('ParichayList')) {
+    if (window.location.pathname.toLowerCase().includes('parichaylist')) {
         const searchContainer = document.getElementById('searchContainer');
         if (searchContainer) {
             searchContainer.style.display = 'block';
