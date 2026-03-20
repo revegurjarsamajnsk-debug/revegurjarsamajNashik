@@ -1,23 +1,27 @@
-// sidebar.js - Cleaned up version
-(function() {
+// sidebar.js
+(function () {
     const sidebarHTML = `
-        <button class="menu-toggle" id="sidebarMenuToggle">
+        <button class="menu-toggle" id="sidebarMenuToggle" aria-label="Open menu">
             <span></span>
             <span></span>
             <span></span>
         </button>
-        <div class="search-container" id="searchContainer" style="display: none;">
-            <input type="text" class="search-input" id="searchInput" placeholder="खोजें: नाव, क्षेत्र, मुळगाव, मोबाईल...">
+        <div class="search-container" id="searchContainer" style="display:none;">
+            <input
+                type="text"
+                class="search-input"
+                id="searchInput"
+                placeholder="खोजें: नाव, क्षेत्र, मुळगाव, मोबाईल..."
+            >
         </div>
-        <nav class="sidebar-nav" id="sidebarNav">
+        <nav class="sidebar-nav" id="sidebarNav" aria-label="Site navigation">
             <div class="sidebar-nav-header">
                 <h2>परिचय</h2>
             </div>
             <ul class="sidebar-nav-menu">
-                <li><a href="/home.html">Home</a></li>
+                <li><a href="/index.html">Home</a></li>
                 <li><a href="/ParichayList.html">Parichay List</a></li>
                 <li><a href="/contacts.html">संपर्क माहिती</a></li>
-
                 <li class="admin-link-li">
                     <a href="/admin/login.html" class="admin-link">Admin Login</a>
                 </li>
@@ -25,66 +29,57 @@
         </nav>
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
     `;
-    
+
     document.body.insertAdjacentHTML('afterbegin', sidebarHTML);
-    
-    // Show search bar only on ParichayList page
+
+    // Show search bar only on the Parichay List page
     if (window.location.pathname.toLowerCase().includes('parichaylist')) {
-        const searchContainer = document.getElementById('searchContainer');
-        if (searchContainer) {
-            searchContainer.style.display = 'block';
-        }
+        const sc = document.getElementById('searchContainer');
+        if (sc) sc.style.display = 'block';
     }
-    
-    setTimeout(() => {
+
+    // Wait for DOM to settle before attaching events
+    setTimeout(function () {
         const menuToggle = document.getElementById('sidebarMenuToggle');
-        const sidebar = document.getElementById('sidebarNav');
-        const overlay = document.getElementById('sidebarOverlay');
-        
+        const sidebar    = document.getElementById('sidebarNav');
+        const overlay    = document.getElementById('sidebarOverlay');
+
         if (!menuToggle || !sidebar || !overlay) return;
-        
-        menuToggle.addEventListener('mouseenter', () => {
-            menuToggle.classList.add('active');
+
+        function openSidebar() {
             sidebar.classList.add('active');
             overlay.classList.add('active');
-        });
-        
-        sidebar.addEventListener('mouseenter', () => {
             menuToggle.classList.add('active');
-            sidebar.classList.add('active');
-            overlay.classList.add('active');
-        });
-        
-        menuToggle.addEventListener('mouseleave', () => {
-            if (!sidebar.matches(':hover')) {
-                setTimeout(() => {
-                    if (!sidebar.matches(':hover')) {
-                        menuToggle.classList.remove('active');
-                        sidebar.classList.remove('active');
-                        overlay.classList.remove('active');
-                    }
-                }, 100);
+            menuToggle.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            menuToggle.classList.remove('active');
+            menuToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        // Toggle on click (works on both desktop and mobile)
+        menuToggle.addEventListener('click', function () {
+            if (sidebar.classList.contains('active')) {
+                closeSidebar();
+            } else {
+                openSidebar();
             }
         });
-        
-        sidebar.addEventListener('mouseleave', () => {
-            menuToggle.classList.remove('active');
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
+
+        // Close when clicking the overlay
+        overlay.addEventListener('click', closeSidebar);
+
+        // Close when a nav link is clicked
+        sidebar.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', closeSidebar);
         });
-        
-        overlay.addEventListener('click', () => {
-            menuToggle.classList.remove('active');
-            sidebar.classList.remove('active');
-            overlay.classList.remove('active');
-        });
-        
-        document.querySelectorAll('.sidebar-nav-menu a').forEach(link => {
-            link.addEventListener('click', () => {
-                menuToggle.classList.remove('active');
-                sidebar.classList.remove('active');
-                overlay.classList.remove('active');
-            });
+
+        // Close on Escape key
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeSidebar();
         });
     }, 50);
 })();
