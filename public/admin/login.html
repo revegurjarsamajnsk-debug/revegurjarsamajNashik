@@ -7,151 +7,131 @@
     <title>Admin Login</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../assets/js/config.js"></script>
+    <!-- style.css contains ALL sidebar styles — was missing, causing unstyled sidebar -->
+    <link rel="stylesheet" href="../assets/css/style.css">
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #f5f5f7;
             min-height: 100vh;
-            margin: 0;
-            overflow-x: hidden; /* Prevent horizontal scrollbar */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        /* Main content wrapper */
-        #main-content {
-            transition: transform 0.4s ease;
-            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 1rem;
-        }
-        
-        /* Class to shift content when sidebar is active */
-        #main-content.sidebar-active {
-            transform: translateX(175px); /* Half of sidebar width */
         }
 
         .login-container {
-            max-width: 400px;
+            max-width: 380px;
             width: 100%;
-            padding: 2.5rem;
+            padding: 2rem;
             background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.2);
-            text-align: center;
+            border-radius: 14px;
+            border: 1px solid #d2d2d7;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
         }
+
         h1 {
-            color: #FF6600;
-            margin-bottom: 2rem;
-            font-size: 1.8rem;
-        }
-        .form-group {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1d1d1f;
+            text-align: center;
             margin-bottom: 1.5rem;
-            text-align: left;
         }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
         label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #1d1d1f;
         }
+
         input[type="email"],
         input[type="password"] {
             width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1rem;
+            padding: 0.65rem 0.85rem;
+            border: 1px solid #d2d2d7;
+            border-radius: 9px;
+            font-size: 0.9rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f7;
+            color: #1d1d1f;
+            outline: none;
             box-sizing: border-box;
+            transition: border-color 0.15s, box-shadow 0.15s;
         }
+
+        input:focus {
+            background: #fff;
+            border-color: #0071e3;
+            box-shadow: 0 0 0 3px rgba(0,113,227,0.12);
+        }
+
         .btn-submit {
             width: 100%;
-            padding: 1rem;
+            padding: 0.75rem;
             border: none;
-            border-radius: 8px;
-            background: #667eea;
+            border-radius: 9px;
+            background: #1d1d1f;
             color: #fff;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 600;
+            font-family: inherit;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.15s;
         }
+
         .btn-submit:hover {
-            background: #5568d3;
+            background: #333;
         }
+
         #error-message {
-            color: #dc3545;
-            margin-top: 1rem;
-            font-weight: 600;
+            color: #ff3b30;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            text-align: center;
             display: none;
-        }
-        
-        @media (max-width: 768px) {
-            #main-content.sidebar-active {
-                 transform: translateX(140px); /* Half of smaller sidebar */
-            }
         }
     </style>
 </head>
 <body>
-    <div id="main-content">
-        <div class="login-container">
-            <h1>Admin Login</h1>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" required>
-                </div>
-                <button type="submit" class="btn-submit">Login</button>
-            </form>
-            <p id="error-message"></p>
-        </div>
+    <div class="login-container">
+        <h1>Admin Login</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <button type="submit" class="btn-submit">Login</button>
+        </form>
+        <p id="error-message"></p>
     </div>
 
     <script src="../assets/js/sidebar.js"></script>
     <script>
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const loginForm = document.getElementById('loginForm');
-        const errorMessage = document.getElementById('error-message');
 
-        loginForm.addEventListener('submit', async (e) => {
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const email    = document.getElementById('email').value;
             const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('error-message');
 
-            const { data, error } = await supabaseClient.auth.signInWithPassword({
-                email: email,
-                password: password,
-            });
+            const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
             if (error) {
-                errorMessage.textContent = 'Login Failed: ' + error.message;
-                errorMessage.style.display = 'block';
+                errorMsg.textContent = 'Login failed: ' + error.message;
+                errorMsg.style.display = 'block';
             } else {
                 window.location.href = 'index.html';
             }
-        });
-        
-        // --- SCRIPT TO HANDLE CONTENT SHIFT ---
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => {
-                const sidebar = document.getElementById('sidebarNav');
-                const mainContent = document.getElementById('main-content');
-                if (!sidebar || !mainContent) return;
-
-                const observer = new MutationObserver(() => {
-                    mainContent.classList.toggle('sidebar-active', sidebar.classList.contains('active'));
-                });
-
-                observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
-            }, 100);
         });
     </script>
 </body>
